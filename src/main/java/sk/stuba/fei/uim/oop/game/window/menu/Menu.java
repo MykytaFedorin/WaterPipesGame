@@ -35,16 +35,16 @@ public class Menu extends JPanel{
                                 this.checkPathButton};
     }
     private JComboBox<String> initCombo(){
-        String[] sizes = { "8x8",
-                            "10x10",
-                            "12x12",
-                            "14x14",
-                            "16x16"};
+        String[] sizes = { "8",
+                            "10",
+                            "12",
+                            "14",
+                            "16"};
         return new JComboBox<>(sizes);
     }
     private void initComponents(){
         this.sizeSetter = initCombo();
-        this.sizeLabel = new JLabel("Size: 8x8");
+        this.sizeLabel = new JLabel("Size: 8");
         this.levellabel = new JLabel("Level: 1");
         this.resetButton = new JButton("RESET");
         this.checkPathButton = new JButton("Check path");
