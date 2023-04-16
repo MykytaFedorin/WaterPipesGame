@@ -21,9 +21,9 @@ public class GameLogic extends UniversalAdapter{
                 sizeLabel.setText("Size: "+combo.getSelectedItem());
             }
             String size = Objects.requireNonNull(combo.getSelectedItem()).toString();
-            System.out.println(size);
             this.window.remove(this.window.getField());
             this.window.setField(new GameField(Integer.parseInt(size)));
+            this.window.getField().createMaze();
         }
     }
 }
