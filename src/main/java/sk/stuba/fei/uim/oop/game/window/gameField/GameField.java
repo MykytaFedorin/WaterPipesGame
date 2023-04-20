@@ -1,37 +1,44 @@
 package sk.stuba.fei.uim.oop.game.window.gameField;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.swing.*;
 import javax.swing.border.Border;
-import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Random;
 
 public class GameField extends JPanel {
-    private int size;
+    @Getter
+    private int fieldSize;
     private Random randomizer;
     @Getter
+    @Setter
     private ArrayList<ArrayList<Square>> squares;
+    @Getter
+    private Square startSquare;
+    @Getter
+    private Square finishSquare;
     public GameField(int size){
-        this.size = size;
-        this.setLayout(new GridLayout(this.size, this.size));
+        this.fieldSize = size;
+        this.setLayout(new GridLayout(this.fieldSize, this.fieldSize));
         this.squares = new ArrayList<>();
+        initSquares();
         this.randomizer = new Random();
-        int randomRowPos = randomizer.nextInt(this.size);
+        int randRowIndex = this.randomizer.nextInt(this.fieldSize);
+        int randColIndex = this.randomizer.nextInt(this.fieldSize);
+        this.finishSquare = this.squares.get(randColIndex).get(this.fieldSize -1);
+        this.startSquare = this.squares.get(randRowIndex).get(0);
+    }
+    private void initSquares(){
         Square element;
         Border border;
-        for(int i=0;i<this.size;i++){
+        for(int i = 0; i<this.fieldSize; i++){
             ArrayList<Square> row = new ArrayList<>();
-            for(int j = 0;j<this.size;j++){
-                if(i==0){
-                    border = new MatteBorder(5, 0, 5, 5, Color.GREEN);
-                }
-                else{
-                    border = new MatteBorder(5, 5, 5, 5, Color.GREEN);
-                }
+            for(int j = 0; j<this.fieldSize; j++){
+                border = new MatteBorder(5, 5, 5, 5, Color.GREEN);
                 element = new Square(Color.GRAY, i, j, border);
                 row.add(element);
                 this.add(element);
@@ -39,110 +46,35 @@ public class GameField extends JPanel {
             this.squares.add(row);
         }
     }
-    public void createMaze(){
-        Square startSquare = this.squares.get(0).get(0);
-        randDFS(startSquare, this.size*this.size);
-        Square lastSquare = this.squares.get(this.size-1).get(this.size-1);
-        changeBorder(lastSquare, "right");
-    }
-    public void solveMaze(){
-        Square startSquare = this.squares.get(0).get(0);
-    }
-    private void makeStep(Square square){
-
-    }
-    private void randDFS(Square square, int size){
-        markVisited(square);
-        Square nextSquare = randUnvisitedNeighbour(square);
-        while (nextSquare != null){
-            connectSquares(square, nextSquare);
-            randDFS(nextSquare, size);
-            nextSquare = randUnvisitedNeighbour(square);
+    public void repaint(){
+        for( Component component: this.getComponents()){
+            component.repaint();
         }
     }
-    private void changeBorder(Square square, String param){
-        Border border = square.getBorder();
-        Insets insets = border.getBorderInsets(square);
-        Border newBorder = removeBorderSide(insets, param);
-        square.setBorder(newBorder);
-    }
-    private void connectSquares(Square square, Square nextSquare){
-        nextSquare.setBackground(Color.RED);
-        int rowIndex = square.getRowIndex();
-        int columnIndex = square.getColumnIndex();
-        int nextRowIndex = nextSquare.getRowIndex();
-        int nextColumnIndex = nextSquare.getColumnIndex();
-
-        if(rowIndex == nextRowIndex){
-            if(columnIndex>nextColumnIndex){
-                changeBorder(square, "left");
-                changeBorder(nextSquare, "right");
-            }
-            else if(columnIndex<nextColumnIndex){
-                changeBorder(square, "right");
-                changeBorder(nextSquare, "left");
-            }
-        }
-        else if(columnIndex == nextColumnIndex){
-            if(rowIndex>nextRowIndex){
-                changeBorder(square, "top");
-                changeBorder(nextSquare, "bottom");
-            }
-            else if(rowIndex<nextRowIndex){
-                changeBorder(square, "bottom");
-                changeBorder(nextSquare, "top");
-            }
-        }
-    }
-    private Border removeBorderSide(Insets lastInsets, String param){
-        Border border= null;
-        switch (param){
-            case "top":
-                border = new MatteBorder(0, lastInsets.left, lastInsets.bottom, lastInsets.right, Color.GREEN);
-                break;
-            case "left":
-                border = BorderFactory.createMatteBorder(lastInsets.top,0,lastInsets.bottom,lastInsets.right,Color.GREEN);
-                break;
-            case "bottom":
-                border = BorderFactory.createMatteBorder(lastInsets.top, lastInsets.left, 0,lastInsets.right,Color.GREEN);
-                break;
-            case "right":
-                border = BorderFactory.createMatteBorder(lastInsets.top, lastInsets.left, lastInsets.bottom, 0,Color.GREEN);
-                break;
-        }
-        return border;
-    }
-    private void markVisited(Square square){
-        square.setBackground(Color.RED);
-    }
-    private Square randUnvisitedNeighbour(Square square) {
-        ArrayList<Square> neighbours = getNeighbours(square);
-        if(neighbours.size() == 0){
-            return null;
-        }
-        int index = this.randomizer.nextInt(neighbours.size());
-        return neighbours.get(index);
-    }
-    private ArrayList<Square> getNeighbours(Square square){
-        ArrayList<Square> neighbours = new ArrayList<>();
-        int[] pos1 = new int[]{square.getColumnIndex(), square.getRowIndex() - 1};
-        int[] pos2 = new int[]{square.getColumnIndex(), square.getRowIndex()+1};
-        int[] pos3 = new int[]{square.getColumnIndex()-1, square.getRowIndex()};
-        int[] pos4 = new int[]{square.getColumnIndex()+1, square.getRowIndex()};
-        int[][] positions = {pos1, pos2, pos3, pos4};
-        for (int[] pos : positions) {
-            try {
-                Square neighbour = this.squares.get(pos[1]).get(pos[0]);
-                if(neighbour.getBackground() != Color.RED){
-                    neighbours.add(neighbour);
+    public void drawRandomPipes(){
+        ArrayList<ArrayList<Square>> newSquares = new ArrayList<>();
+        for(int rowIndex = 0; rowIndex<this.fieldSize; rowIndex++){
+            ArrayList<Square> row = new ArrayList<>();
+            for(int columnIndex = 0; columnIndex<this.fieldSize; columnIndex++){
+                Square square = this.squares.get(rowIndex).get(columnIndex);
+                if(square.getBackground() == Color.BLUE){
+                    Square newSquare = new Square(Color.magenta, rowIndex, columnIndex, null);
+                    this.remove(square);
+                    row.add(newSquare);
+                    this.add(newSquare);
                 }
-            } catch (IndexOutOfBoundsException ignored) {
-
+                else{
+                    Square newSquare = new Square(Color.GRAY, rowIndex, columnIndex, null);
+                    this.remove(square);
+                    row.add(newSquare);
+                    this.add(newSquare);
+                }
             }
+            newSquares.add(row);
         }
-        return neighbours;
     }
+
     public int getFieldSize(){
-        return this.size;
+        return this.fieldSize;
     }
 }

@@ -11,6 +11,7 @@ public class Game {
         Window window = new Window();
         GameLogic logic = new GameLogic(window);
         window.getMenu().getSizeSetter().addItemListener(logic);
-        window.getField().createMaze();
+        window.getField().addMouseListener(logic);
+//        window.getField().drawRandomPipes();
     }
 }
