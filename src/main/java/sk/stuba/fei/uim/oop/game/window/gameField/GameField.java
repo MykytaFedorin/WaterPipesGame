@@ -51,28 +51,6 @@ public class GameField extends JPanel {
             component.repaint();
         }
     }
-    public void drawRandomPipes(){
-        ArrayList<ArrayList<Square>> newSquares = new ArrayList<>();
-        for(int rowIndex = 0; rowIndex<this.fieldSize; rowIndex++){
-            ArrayList<Square> row = new ArrayList<>();
-            for(int columnIndex = 0; columnIndex<this.fieldSize; columnIndex++){
-                Square square = this.squares.get(rowIndex).get(columnIndex);
-                if(square.getBackground() == Color.BLUE){
-                    Square newSquare = new Square(Color.magenta, rowIndex, columnIndex, null);
-                    this.remove(square);
-                    row.add(newSquare);
-                    this.add(newSquare);
-                }
-                else{
-                    Square newSquare = new Square(Color.GRAY, rowIndex, columnIndex, null);
-                    this.remove(square);
-                    row.add(newSquare);
-                    this.add(newSquare);
-                }
-            }
-            newSquares.add(row);
-        }
-    }
 
     public int getFieldSize(){
         return this.fieldSize;

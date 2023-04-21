@@ -1,10 +1,13 @@
 package sk.stuba.fei.uim.oop.game.logic;
 
 import sk.stuba.fei.uim.oop.game.window.Window;
+import sk.stuba.fei.uim.oop.game.window.gameField.Direction;
 import sk.stuba.fei.uim.oop.game.window.gameField.GameField;
+import sk.stuba.fei.uim.oop.game.window.gameField.Side;
 import sk.stuba.fei.uim.oop.game.window.gameField.Square;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.MouseEvent;
@@ -143,6 +146,35 @@ public class GameLogic extends UniversalAdapter{
         createMaze();
         solveMaze();
         setColorToAll();
+        putPipes();
+    }
+    private void putPipes(){
+        Square start = this.window.getField().getStartSquare();
+        Square finish = this.window.getField().getFinishSquare();
+        for(Component component: this.window.getField().getComponents()){
+            Square current = ((Square) component);
+            if(!current.equals(start) && !current.equals(finish) && current.getBackground() == Color.BLUE){
+                putPipesByColor(current);
+            }
+            else if(current.equals(start) && current.getBackground() == Color.BLUE){
+                current.getSides().add(Side.West);
+                putPipesByColor(current);
+            }
+            else if(current.equals(finish) && current.getBackground() == Color.BLUE){
+                current.getSides().add(Side.East);
+                putPipesByColor(current);
+            }
+        }
+    }
+    private void putPipesByColor(Square square){
+        ArrayList<Square> neighbours = getNeighbours(square, Color.YELLOW);
+        validateNeighbours(square, neighbours);
+        for(Square neighbour: neighbours){
+            Side side = square.getNeighbourSide(neighbour);
+            if(side!=null){
+                square.getSides().add(side);
+            }
+        }
     }
     private void markVisited(Square square){
         square.setBackground(Color.RED);
@@ -150,11 +182,13 @@ public class GameLogic extends UniversalAdapter{
     @Override
     public void mouseClicked(MouseEvent e) {
         Component current = this.window.getField().getComponentAt(e.getPoint());
+        System.out.println("irfbirhjbf2ij");
         if(!(current instanceof Square) && current != null){
             return;
         }
-        ((Square) current).setColor(Color.GRAY);
-        current.repaint();
+        if(current != null){
+            ((Square) current).turn();
+        }
     }
     @Override
     public void itemStateChanged(ItemEvent e) {
@@ -167,6 +201,7 @@ public class GameLogic extends UniversalAdapter{
             String size = Objects.requireNonNull(combo.getSelectedItem()).toString();
             this.window.remove(this.window.getField());
             this.window.setField(new GameField(Integer.parseInt(size)));
+            window.getField().addMouseListener(this);
             createPath();
 //            this.window.getField().drawRandomPipes();
         }

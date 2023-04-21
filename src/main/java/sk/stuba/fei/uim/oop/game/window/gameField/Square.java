@@ -7,6 +7,7 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.MatteBorder;
 import java.awt.*;
+import java.util.ArrayList;
 
 public class Square extends JPanel {
     @Getter
@@ -16,14 +17,62 @@ public class Square extends JPanel {
     private Border border;
     @Setter
     private Color color;
+    @Setter
+    private Direction direction;
+    @Setter
+    @Getter
+    private ArrayList<Side> sides;
     public Square(Color color, int rowIndex, int columnIndex, Border border){
         this.setBackground(color);
         this.rowIndex = rowIndex;
         this.columnIndex = columnIndex;
         this.border = border;
         this.color = color;
+        this.sides = new ArrayList<>();
+        this.direction = null;
         this.setBorder(border);
     }
+    public void turn(){
+
+        System.out.println("Inside");
+        boolean north = this.sides.contains(Side.North);
+        boolean east = this.sides.contains(Side.East);
+        boolean south = this.sides.contains(Side.South);
+        boolean west = this.sides.contains(Side.West);
+        this.sides.clear();
+        if(west && east){
+            this.direction = Direction.Vertical;
+            this.sides.add(Side.North);
+            this.sides.add(Side.South);
+        }
+        else if(north && south){
+            this.direction = Direction.Horizontal;
+            this.sides.add(Side.West);
+            this.sides.add(Side.East);
+        }
+        else if(north && east){
+            this.direction = Direction.EastSouth;
+            this.sides.add(Side.East);
+            this.sides.add(Side.South);
+        }
+        else if(east && south){
+            this.direction = Direction.SouthWest;
+            this.sides.add(Side.South);
+            this.sides.add(Side.West);
+        }
+        else if(south && west){
+            this.direction = Direction.WestNorth;
+            this.sides.add(Side.West);
+            this.sides.add(Side.North);
+        }
+        else if(west && north){
+            this.direction = Direction.NorthEast;
+            this.sides.add(Side.North);
+            this.sides.add(Side.East);
+        }
+        this.repaint();
+    }
+
     public void changeBorder(String param){
         Border border = this.getBorder();
         Insets insets = border.getBorderInsets(this);
@@ -87,12 +136,58 @@ public class Square extends JPanel {
                 return false;
         }
     }
-    @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        boolean north = this.sides.contains(Side.North);
+        boolean east = this.sides.contains(Side.East);
+        boolean south = this.sides.contains(Side.South);
+        boolean west = this.sides.contains(Side.West);
+        int width = this.getWidth();
+        int height = this.getHeight();
         if(this.getBackground() == Color.BLUE){
             g.setColor(Color.red);
-            g.fillRect(0,0,this.getWidth()/2,this.getHeight()/2);
+            if(west && east){
+                g.fillRect(0,3*height/8,width,2*height/8);
+            } else if (north && south) {
+                g.fillRect(3*width/8, 0, 2*width/8, height);
+            }
+            else if (west && north) {
+                g.fillRect(0, 3*height/8, 5*width/8, 2*height/8);
+                g.fillRect(3*width/8, 0, 2*width/8, 5*height/8);
+            }
+            else if (north && east){
+                g.fillRect(3*width/8, 0, 2*width/8, 5*height/8);
+                g.fillRect(3*width/8, 3*height/8, 5*width/8, 2*height/8);
+            }
+            else if(east && south){
+                g.fillRect(3*width/8, 3*height/8, 5*width/8, 2*height/8);
+                g.fillRect(3*width/8, 3*height/8, 2*width/8, 5*height/8);
+            }
+            else if(south && west){
+                g.fillRect(3*width/8, 3*height/8, 2*width/8, 5*height/8);
+                g.fillRect(0, 3*height/8, 5*width/8, 2*height/8);
+            }
         }
+    }
+    public Side getNeighbourSide(Square neighbour){
+        if(this.getRowIndex() == neighbour.getRowIndex() && this.getColumnIndex() > neighbour.getColumnIndex()){
+            return Side.West;
+        }
+        else if(this.getColumnIndex() == neighbour.getColumnIndex() && this.getRowIndex()>neighbour.getRowIndex()){
+            return Side.North;
+        }
+        else if(this.getRowIndex() == neighbour.getRowIndex() && this.getColumnIndex() < neighbour.getColumnIndex()){
+            return Side.East;
+        }
+        else if(this.getColumnIndex() == neighbour.getColumnIndex() && this.getRowIndex() < neighbour.getRowIndex()){
+            return Side.South;
+        }
+        else{
+            return null;
+        }
+    }
+    public boolean equals(Square square){
+        return this.getColumnIndex() == square.getColumnIndex() &&
+                this.getRowIndex() == square.getRowIndex();
     }
 }
