@@ -1,26 +1,27 @@
 package sk.stuba.fei.uim.oop.game.logic;
 
 import sk.stuba.fei.uim.oop.game.window.Window;
-import sk.stuba.fei.uim.oop.game.window.gameField.Direction;
 import sk.stuba.fei.uim.oop.game.window.gameField.GameField;
 import sk.stuba.fei.uim.oop.game.window.gameField.Side;
 import sk.stuba.fei.uim.oop.game.window.gameField.Square;
 
 import javax.swing.*;
-import javax.swing.border.Border;
+import javax.swing.event.ChangeEvent;
 import java.awt.*;
-import java.awt.event.ItemEvent;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.Objects;
 import java.util.Random;
 
 public class GameLogic extends UniversalAdapter{
     private Window window;
     private Random randomizer;
+    private int level;
     public GameLogic(Window window){
         this.window = window;
         this.randomizer = new Random();
+        this.level = 1;
         createPath();
     }
     private void setColorToAll(){
@@ -157,14 +158,53 @@ public class GameLogic extends UniversalAdapter{
                 putPipesByColor(current);
             }
             else if(current.equals(start) && current.getBackground() == Color.BLUE){
-                current.getSides().add(Side.West);
+                current.getRightSides().add(Side.West);
+                current.getCurrentSides().add(Side.West);
                 putPipesByColor(current);
             }
             else if(current.equals(finish) && current.getBackground() == Color.BLUE){
-                current.getSides().add(Side.East);
+                current.getRightSides().add(Side.East);
+                current.getCurrentSides().add(Side.East);
                 putPipesByColor(current);
             }
+            turnRandomly(current);
         }
+    }
+    private void turnRandomly(Square square){
+        int randomTurn = this.randomizer.nextInt(5);
+        for(int i=0;i<randomTurn;i++){
+            square.turn();
+        }
+        square.getInitialSides().clear();
+        for(Side side: square.getCurrentSides()){
+            square.getInitialSides().add(side);
+        }
+    }
+    private void goTo(Square square){
+        ArrayList<Square> neighbours = getNeighbours(square, Color.YELLOW);
+        validateNeighbours(square, neighbours);
+        for(Side side: square.getCurrentSides()){
+            if(!square.getRightSides().contains(side)){
+                return;
+            }
+        }
+        square.setHighlighted(true);
+        this.window.getField().repaint();
+        if(square == this.window.getField().getFinishSquare()){
+            setNewLevel();
+            this.level +=1;
+            this.window.getMenu().getLevelLabel().setText("Level: "+String.valueOf(this.level));
+            return;
+        }
+        for(Square neighbour: neighbours){
+            if(!neighbour.isHighlighted()){
+                goTo(neighbour);
+            }
+        }
+    }
+    private void checkPath(){
+        Square square = this.window.getField().getStartSquare();
+        goTo(square);
     }
     private void putPipesByColor(Square square){
         ArrayList<Square> neighbours = getNeighbours(square, Color.YELLOW);
@@ -172,7 +212,8 @@ public class GameLogic extends UniversalAdapter{
         for(Square neighbour: neighbours){
             Side side = square.getNeighbourSide(neighbour);
             if(side!=null){
-                square.getSides().add(side);
+                square.getRightSides().add(side);
+                square.getCurrentSides().add(side);
             }
         }
     }
@@ -182,7 +223,6 @@ public class GameLogic extends UniversalAdapter{
     @Override
     public void mouseClicked(MouseEvent e) {
         Component current = this.window.getField().getComponentAt(e.getPoint());
-        System.out.println("irfbirhjbf2ij");
         if(!(current instanceof Square) && current != null){
             return;
         }
@@ -191,19 +231,83 @@ public class GameLogic extends UniversalAdapter{
         }
     }
     @Override
-    public void itemStateChanged(ItemEvent e) {
-        if(e.getStateChange() == ItemEvent.SELECTED){
-            JComboBox<String> combo = this.window.getMenu().getSizeSetter();
+    public void stateChanged(ChangeEvent e) {
+        super.stateChanged(e);
+        JSlider slider = this.window.getMenu().getSizeSetter();
+        if(e.getSource() == slider) {
             JLabel sizeLabel = this.window.getMenu().getSizeLabel();
-            if(e.getSource() == combo) {
-                sizeLabel.setText("Size: "+combo.getSelectedItem());
-            }
-            String size = Objects.requireNonNull(combo.getSelectedItem()).toString();
+            sizeLabel.setText("Size: " + slider.getValue());
+            this.level = 1;
+            this.window.getMenu().getLevelLabel().setText("Level: "+String.valueOf(this.level));
+            String size = Integer.valueOf(slider.getValue()).toString();
+            GameField newField = new GameField(Integer.parseInt(size));
+            newField.setFieldSize(Integer.parseInt(size));
             this.window.remove(this.window.getField());
-            this.window.setField(new GameField(Integer.parseInt(size)));
-            window.getField().addMouseListener(this);
+            this.window.setField(newField);
             createPath();
+            this.window.getField().addMouseListener(this);
+            this.window.getField().addMouseMotionListener(this);
+            this.window.addKeyListener(this);
 //            this.window.getField().drawRandomPipes();
         }
+    }
+
+    private void setNewLevel(){
+        int size = this.window.getField().getFieldSize();
+        this.window.remove(this.window.getField());
+        this.window.setField(new GameField(size));
+        this.window.getField().repaint();
+        this.window.getField().addMouseListener(this);
+        this.window.getField().addMouseMotionListener(this);
+        createPath();
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        super.actionPerformed(e);
+        if(e.getSource() == this.window.getMenu().getResetButton()){
+            resetField();
+        }
+        else{
+            checkPath();
+        }
+    }
+    private void resetField(){
+        for(Component component: this.window.getField().getComponents()){
+            Square square = ((Square) component);
+            square.getCurrentSides().clear();
+            for(Side side: square.getInitialSides()){
+                square.getCurrentSides().add(side);
+            }
+            square.repaint();
+        }
+        this.window.getField().repaint();
+    }
+    @Override
+    public void keyPressed(KeyEvent e) {
+        super.keyPressed(e);
+        if(e.getKeyChar() == 'r' || e.getKeyChar() == 'R'){
+            resetField();
+        }
+        else if(e.getKeyChar() == '\n'){
+            checkPath();
+        }
+        else if(e.getKeyCode() == 27){
+            this.window.dispose();
+        }
+    }
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        Component current = this.window.getField().getComponentAt(e.getPoint());
+        if(!(current instanceof Square)){
+            return;
+        }
+        ((Square) current).setHighlighted(true);
+        this.window.getField().repaint();
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+        this.window.getField().repaint();
     }
 }

@@ -7,11 +7,13 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.MatteBorder;
 import java.awt.*;
+import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.Random;
 
 public class GameField extends JPanel {
     @Getter
+    @Setter
     private int fieldSize;
     private Random randomizer;
     @Getter
@@ -51,7 +53,11 @@ public class GameField extends JPanel {
             component.repaint();
         }
     }
-
+    public void addListenerToAll(MouseMotionListener listener){
+        for(Component component: this.getComponents()){
+            component.addMouseMotionListener(listener);
+        }
+    }
     public int getFieldSize(){
         return this.fieldSize;
     }

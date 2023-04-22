@@ -10,11 +10,15 @@ import java.util.List;
 
 public class Menu extends JPanel{
     @Getter
-    private JComboBox<String> sizeSetter;
+    private JSlider sizeSetter;
     @Getter
     private JLabel sizeLabel;
-    private JLabel levellabel;
+    @Getter
+
+    private JLabel levelLabel;
+    @Getter
     private JButton resetButton;
+    @Getter
     private JButton checkPathButton;
     public Menu(){
         this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
@@ -30,26 +34,30 @@ public class Menu extends JPanel{
     private JComponent[] getElements(){
         return new JComponent[]{this.sizeSetter,
                                 this.sizeLabel,
-                                this.levellabel,
+                                this.levelLabel,
                                 this.resetButton,
                                 this.checkPathButton};
     }
-    private JComboBox<String> initCombo(){
-        String[] sizes = { "8",
-                            "10",
-                            "12",
-                            "14",
-                            "16"};
-        return new JComboBox<>(sizes);
+    private JSlider initCombo(){
+        JSlider slider = new JSlider(JSlider.HORIZONTAL, 8, 16, 8);
+        slider.setMinorTickSpacing(2);
+        slider.setMajorTickSpacing(2);
+        slider.setSnapToTicks(true);
+        slider.setPaintTicks(true);
+        slider.setPaintLabels(true);
+        slider.setFocusable(false);
+        return slider;
     }
     private void initComponents(){
         this.sizeSetter = initCombo();
         this.sizeLabel = new JLabel("Size: 8");
-        this.levellabel = new JLabel("Level: 1");
+        this.levelLabel = new JLabel("Level: 1");
         this.resetButton = new JButton("RESET");
+        this.resetButton.setFocusable(false);
         this.checkPathButton = new JButton("Check path");
+        this.checkPathButton.setFocusable(false);
     }
     public void addListenerForAll(GameLogic logic){
-        this.sizeSetter.addActionListener(logic);
+        this.sizeSetter.addChangeListener(logic);
     }
 }

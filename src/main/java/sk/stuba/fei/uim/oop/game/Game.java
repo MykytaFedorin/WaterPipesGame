@@ -10,8 +10,12 @@ public class Game {
     public Game(){
         Window window = new Window();
         GameLogic logic = new GameLogic(window);
-        window.getMenu().getSizeSetter().addItemListener(logic);
+        window.getMenu().getSizeSetter().addChangeListener(logic);
         window.getField().addMouseListener(logic);
+        window.getField().addMouseMotionListener(logic);
+        window.getMenu().getResetButton().addActionListener(logic);
+        window.getMenu().getCheckPathButton().addActionListener(logic);
+        window.addKeyListener(logic);
 //        window.getField().drawRandomPipes();
     }
 }
