@@ -190,7 +190,7 @@ public class GameLogic extends UniversalAdapter{
         square.setHighlighted(true);
         this.window.getField().repaint();
         if(square == this.window.getField().getFinishSquare()){
-            setNewLevel();
+            setNewPath();
             this.level +=1;
             this.window.getMenu().getLevelLabel().setText("Level: "+String.valueOf(this.level));
             return;
@@ -251,7 +251,7 @@ public class GameLogic extends UniversalAdapter{
         }
     }
 
-    private void setNewLevel(){
+    private void setNewPath(){
         int size = this.window.getField().getFieldSize();
         this.window.remove(this.window.getField());
         this.window.setField(new GameField(size));
@@ -272,15 +272,9 @@ public class GameLogic extends UniversalAdapter{
         }
     }
     private void resetField(){
-        for(Component component: this.window.getField().getComponents()){
-            Square square = ((Square) component);
-            square.getCurrentSides().clear();
-            for(Side side: square.getInitialSides()){
-                square.getCurrentSides().add(side);
-            }
-            square.repaint();
-        }
-        this.window.getField().repaint();
+        this.level = 1;
+        this.window.getMenu().getLevelLabel().setText("Level: "+this.level);
+        setNewPath();
     }
     @Override
     public void keyPressed(KeyEvent e) {
