@@ -48,11 +48,11 @@ public class GameField extends JPanel {
             this.squares.add(row);
         }
     }
-    public void repaint(){
-        for( Component component: this.getComponents()){
-            component.repaint();
-        }
-    }
+//    public void repaint(){
+//        for( Component component: this.getComponents()){
+//            component.repaint();
+//        }
+//    }
     public void addListenerToAll(MouseMotionListener listener){
         for(Component component: this.getComponents()){
             component.addMouseMotionListener(listener);
