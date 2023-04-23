@@ -38,8 +38,7 @@ public class GameLogic extends UniversalAdapter{
     public void createMaze(){
         Square start = this.window.getField().getStartSquare();
         Square finish = this.window.getField().getFinishSquare();
-        int size = this.window.getField().getFieldSize();
-        randDFS(start, size);
+        randDFS(start);
         start.changeBorder("left");
         finish.changeBorder("right");
     }
@@ -78,12 +77,12 @@ public class GameLogic extends UniversalAdapter{
     private void validateNeighbours(Square target, ArrayList<Square> neighbours){
         neighbours.removeIf(neighbour -> !target.isConnectedTo(neighbour));
     }
-    private void randDFS(Square square, int size){
+    private void randDFS(Square square){
         markVisited(square);
         Square nextSquare = randUnvisitedNeighbour(square);
         while (nextSquare != null){
             connectSquares(square, nextSquare);
-            randDFS(nextSquare, size);
+            randDFS(nextSquare);
             nextSquare = randUnvisitedNeighbour(square);
         }
     }
