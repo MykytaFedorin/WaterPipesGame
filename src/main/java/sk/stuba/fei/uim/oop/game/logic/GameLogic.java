@@ -279,13 +279,13 @@ public class GameLogic extends UniversalAdapter{
     @Override
     public void keyPressed(KeyEvent e) {
         super.keyPressed(e);
-        if(e.getKeyChar() == 'r' || e.getKeyChar() == 'R'){
+        if(e.getKeyCode() == KeyEvent.VK_R){
             resetField();
         }
-        else if(e.getKeyChar() == '\n'){
+        else if(e.getKeyCode() == KeyEvent.VK_ENTER){
             checkPath();
         }
-        else if(e.getKeyCode() == 27){
+        else if(e.getKeyCode() == KeyEvent.VK_ESCAPE){
             this.window.dispose();
         }
     }
