@@ -25,6 +25,9 @@ public class Square extends JPanel {
     private ArrayList<Side> currentSides;
     @Getter
     @Setter
+    private Color color;
+    @Getter
+    @Setter
     private ArrayList<Side> initialSides;
     @Setter
     @Getter
