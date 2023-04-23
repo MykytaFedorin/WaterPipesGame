@@ -33,8 +33,4 @@ public class Window extends JFrame{
         this.add(this.field, BorderLayout.CENTER);
         this.setVisible(true);
     }
-    public void addListenerForAll(GameLogic logic){
-        this.getMenu().addListenerForAll(logic);
-        //need to add for game field also
-    }
 }

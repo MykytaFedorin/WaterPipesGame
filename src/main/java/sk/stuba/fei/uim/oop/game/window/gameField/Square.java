@@ -14,11 +14,6 @@ public class Square extends JPanel {
     private int rowIndex;
     @Getter
     private int columnIndex;
-    private Border border;
-    @Setter
-    private Color color;
-    @Setter
-    private Direction direction;
     @Setter
     @Getter
     private boolean highlighted;
@@ -38,13 +33,10 @@ public class Square extends JPanel {
         this.setBackground(color);
         this.rowIndex = rowIndex;
         this.columnIndex = columnIndex;
-        this.border = border;
-        this.color = color;
         this.highlighted = false;
         this.rightSides = new ArrayList<>();
         this.currentSides = new ArrayList<>();
         this.initialSides = new ArrayList<>();
-        this.direction = null;
         this.checked = false;
         this.setBorder(border);
     }
@@ -55,32 +47,26 @@ public class Square extends JPanel {
         boolean west = this.currentSides.contains(Side.West);
         this.currentSides.clear();
         if(west && east){
-            this.direction = Direction.Vertical;
             this.currentSides.add(Side.North);
             this.currentSides.add(Side.South);
         }
         else if(north && south){
-            this.direction = Direction.Horizontal;
             this.currentSides.add(Side.West);
             this.currentSides.add(Side.East);
         }
         else if(north && east){
-            this.direction = Direction.EastSouth;
             this.currentSides.add(Side.East);
             this.currentSides.add(Side.South);
         }
         else if(east && south){
-            this.direction = Direction.SouthWest;
             this.currentSides.add(Side.South);
             this.currentSides.add(Side.West);
         }
         else if(south && west){
-            this.direction = Direction.WestNorth;
             this.currentSides.add(Side.West);
             this.currentSides.add(Side.North);
         }
         else if(west && north){
-            this.direction = Direction.NorthEast;
             this.currentSides.add(Side.North);
             this.currentSides.add(Side.East);
         }
